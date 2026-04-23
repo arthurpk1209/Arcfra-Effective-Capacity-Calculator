@@ -6,40 +6,40 @@
     <title>Arcfra Effective Capacity Calculator</title>
     <style>
         :root {
-            --bg-primary: #0b1120;
-            --bg-secondary: #111827;
-            --bg-card: #1f2937;
-            --bg-hover: #374151;
-            --border: #374151;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
+            --bg: #0b1120;
+            --bg-elevated: #151e32;
+            --bg-card: #1e293b;
+            --bg-hover: #27354f;
+            --border: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
             --accent: #3b82f6;
             --accent-light: #60a5fa;
             --success: #22c55e;
             --warning: #f59e0b;
             --danger: #ef4444;
             --radius: 12px;
-            --shadow: 0 10px 25px rgba(0,0,0,0.5);
+            --shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
         }
         
         .app { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
         
-        /* 頂部提示橫幅 */
+        /* 頂部提示 */
         .top-banner {
             background: linear-gradient(90deg, #1e3a8a, #1e40af);
             border: 1px solid #3b82f6;
             border-radius: var(--radius);
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.25rem;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
@@ -47,8 +47,7 @@
             font-size: 0.95rem;
             color: #dbeafe;
         }
-        
-        .top-banner .icon { font-size: 1.3rem; flex-shrink: 0; }
+        .top-banner .icon { font-size: 1.3rem; }
         
         header {
             text-align: center;
@@ -62,14 +61,12 @@
             background: linear-gradient(90deg, var(--accent-light), #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.3rem;
         }
-        
-        .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+        .subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem; }
         
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 420px;
             gap: 1.5rem;
             align-items: start;
         }
@@ -109,8 +106,8 @@
         
         input[type="number"], select {
             width: 100%;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 0.55rem 0.75rem;
@@ -133,14 +130,60 @@
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
-            color: var(--text-primary);
+            color: var(--text);
             font-size: 0.9rem;
+        }
+        
+        /* 模式切換 */
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+        
+        /* All Flash 全局配置 */
+        .af-global {
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .af-global h4 {
+            color: var(--accent-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
         }
         
         /* 節點網格 */
         .nodes-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1rem;
             margin-top: 1rem;
         }
@@ -150,7 +193,6 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             padding: 1.25rem;
-            position: relative;
             transition: all 0.2s;
         }
         
@@ -167,11 +209,7 @@
             border-bottom: 1px solid var(--border);
         }
         
-        .node-title {
-            font-weight: 700;
-            color: var(--accent-light);
-            font-size: 1.05rem;
-        }
+        .node-title { font-weight: 700; color: var(--accent-light); font-size: 1.05rem; }
         
         .node-badge {
             background: var(--accent);
@@ -193,7 +231,6 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .btn-remove-node:hover { background: var(--danger); color: white; }
         
         .disk-section { margin-bottom: 1rem; }
@@ -224,7 +261,7 @@
         
         .btn-add-disk {
             background: var(--bg-hover);
-            color: var(--text-primary);
+            color: var(--text);
             border: 1px dashed var(--border);
             border-radius: 8px;
             padding: 0.4rem;
@@ -234,12 +271,7 @@
             transition: all 0.2s;
             margin-top: 0.25rem;
         }
-        
-        .btn-add-disk:hover {
-            border-color: var(--accent);
-            color: var(--accent-light);
-            background: rgba(59, 130, 246, 0.1);
-        }
+        .btn-add-disk:hover { border-color: var(--accent); color: var(--accent-light); background: rgba(59,130,246,0.1); }
         
         .btn-delete-disk {
             background: transparent;
@@ -252,11 +284,10 @@
             opacity: 0.7;
             transition: opacity 0.2s;
         }
-        
         .btn-delete-disk:hover { opacity: 1; }
         
         .node-summary {
-            background: var(--bg-primary);
+            background: var(--bg);
             border-radius: 8px;
             padding: 0.75rem;
             margin-top: 0.75rem;
@@ -269,15 +300,9 @@
             justify-content: space-between;
             margin-bottom: 0.35rem;
         }
-        
         .node-summary-row:last-child { margin-bottom: 0; }
         .node-summary-label { color: var(--text-secondary); }
-        
-        .node-summary-value {
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-        }
-        
+        .node-summary-value { font-family: 'Courier New', monospace; font-weight: 600; }
         .node-summary-value.ok { color: var(--success); }
         .node-summary-value.warn { color: var(--warning); }
         .node-summary-value.err { color: var(--danger); }
@@ -290,12 +315,7 @@
             padding-bottom: 1.25rem;
             border-bottom: 1px solid var(--border);
         }
-        
-        .result-block:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
+        .result-block:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
         
         .result-block h3 {
             font-size: 0.85rem;
@@ -313,18 +333,10 @@
         }
         
         .result-label { color: var(--text-secondary); font-size: 0.9rem; }
-        
-        .result-value {
-            font-family: 'Courier New', monospace;
-            font-weight: 700;
-            font-size: 1rem;
-            color: var(--text-primary);
-        }
-        
+        .result-value { font-family: 'Courier New', monospace; font-weight: 700; font-size: 1rem; color: var(--text); }
         .result-value.highlight { color: var(--accent-light); font-size: 1.15rem; }
         .result-value.final { color: var(--success); font-size: 1.25rem; }
         
-        /* 保留策略 */
         .reserve-config {
             display: grid;
             grid-template-columns: 1fr auto;
@@ -332,21 +344,9 @@
             align-items: center;
             margin-bottom: 0.75rem;
         }
+        .reserve-config input[type="number"] { width: 65px; text-align: center; }
+        .reserve-detail { font-size: 0.82rem; color: var(--text-secondary); text-align: right; margin-top: -0.4rem; margin-bottom: 0.5rem; }
         
-        .reserve-config input[type="number"] {
-            width: 65px;
-            text-align: center;
-        }
-        
-        .reserve-detail {
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            text-align: right;
-            margin-top: -0.4rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* 告警 */
         .alert {
             padding: 0.9rem 1rem;
             border-radius: 8px;
@@ -357,27 +357,10 @@
             gap: 0.6rem;
             animation: slideIn 0.3s ease;
         }
-        
         .alert.show { display: flex; }
-        
-        .alert-error {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            color: #fca5a5;
-        }
-        
-        .alert-warning {
-            background: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            color: #fcd34d;
-        }
-        
-        .alert-success {
-            background: rgba(34, 197, 94, 0.08);
-            border: 1px solid rgba(34, 197, 94, 0.25);
-            color: #86efac;
-        }
-        
+        .alert-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+        .alert-warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fcd34d; }
+        .alert-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: #86efac; }
         .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
         
         .global-actions {
@@ -401,12 +384,11 @@
             align-items: center;
             gap: 0.4rem;
         }
-        
         .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
         
         .btn-secondary {
             background: var(--bg-hover);
-            color: var(--text-primary);
+            color: var(--text);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 0.65rem 1.25rem;
@@ -414,7 +396,6 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .btn-secondary:hover { background: var(--border); }
         
         .formula-note {
@@ -426,8 +407,17 @@
         }
         
         .pct-suffix { color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.2rem; }
+        
+        .readonly-info {
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .readonly-info strong { color: var(--text); }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="app">
@@ -439,7 +429,7 @@
         
         <header>
             <h1>Arcfra Effective Capacity Calculator</h1>
-            <p class="subtitle">分散式儲存容量規劃計算器（多節點異構配置）</p>
+            <p class="subtitle">分散式儲存容量規劃計算器（Hybrid & All Flash）</p>
         </header>
         
         <div class="main-layout">
@@ -447,9 +437,31 @@
                 <!-- 全局設定 -->
                 <div class="card">
                     <h2>⚙️ 全局設定</h2>
+                    
+                    <div class="form-group">
+                        <label>節點形式</label>
+                        <div class="mode-toggle">
+                            <button class="mode-btn active" id="btnHybrid" onclick="setMode('hybrid')">Hybrid</button>
+                            <button class="mode-btn" id="btnAllFlash" onclick="setMode('allflash')">All Flash</button>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="nodeCount">叢集節點數量</label>
                         <input type="number" id="nodeCount" min="1" max="64" value="3">
+                    </div>
+                    
+                    <!-- All Flash 全局配置 -->
+                    <div class="af-global" id="afGlobalConfig" style="display:none;">
+                        <h4>⚡ All Flash 全局硬碟配置</h4>
+                        <div class="form-group">
+                            <label for="afDiskOption">硬碟規格（所有節點統一）</label>
+                            <select id="afDiskOption"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="afDiskCount">每節點硬碟數量</label>
+                            <input type="number" id="afDiskCount" min="1" max="24" value="1">
+                        </div>
                     </div>
                     
                     <div style="margin-top: 1.25rem;">
@@ -503,7 +515,7 @@
                     
                     <div class="result-block">
                         <h3>每節點平均容量</h3>
-                        <div class="result-row">
+                        <div class="result-row" id="rowAvgCache" style="display:none;">
                             <span class="result-label">平均 Cache 可用空間</span>
                             <span class="result-value" id="avgCacheUsable">0.0000 TiB</span>
                         </div>
@@ -511,36 +523,50 @@
                             <span class="result-label">平均 Capacity 可用空間</span>
                             <span class="result-value" id="avgCapacityUsable">0.0000 TiB</span>
                         </div>
-                        <div class="result-row">
+                        <div class="result-row" id="rowGlobalRatio" style="display:none;">
                             <span class="result-label">冗餘 Cache / Capacity 比例</span>
                             <span class="result-value" id="globalRatio">-</span>
                         </div>
                     </div>
                     
                     <div class="result-block">
-                        <h3>整體有效空間（原始）</h3>
+                        <h3>整體系統顯示可用空間</h3>
                         <div class="result-row">
-                            <span class="result-label">RF2 有效空間</span>
-                            <span class="result-value highlight" id="rf2Raw">0.0000 TiB</span>
+                            <span class="result-label">RF2（系統顯示）</span>
+                            <span class="result-value highlight" id="sysRf2">0.0000 TiB</span>
                         </div>
                         <div class="result-row">
-                            <span class="result-label">RF3 有效空間</span>
-                            <span class="result-value highlight" id="rf3Raw">0.0000 TiB</span>
+                            <span class="result-label">RF3（系統顯示）</span>
+                            <span class="result-value highlight" id="sysRf3">0.0000 TiB</span>
                         </div>
+                        <div class="formula-note">計算：每節點 Capacity × 節點數 / RF</div>
+                    </div>
+                    
+                    <div class="result-block">
+                        <h3>整體有效可用空間（N+1）</h3>
+                        <div class="result-row">
+                            <span class="result-label">RF2 有效可用</span>
+                            <span class="result-value highlight" id="effRf2">0.0000 TiB</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">RF3 有效可用</span>
+                            <span class="result-value highlight" id="effRf3">0.0000 TiB</span>
+                        </div>
+                        <div class="formula-note">計算：每節點 Capacity × (節點數−1) / RF</div>
                     </div>
                     
                     <div class="result-block" id="reserveBlock">
-                        <h3>套用保留策略後</h3>
+                        <h3>套用保留策略後（有效空間）</h3>
                         <div class="result-row">
                             <span class="result-label">RF2 最終有效空間</span>
-                            <span class="result-value final" id="rf2Final">0.0000 TiB</span>
+                            <span class="result-value final" id="finalRf2">0.0000 TiB</span>
                         </div>
                         <div class="result-row">
                             <span class="result-label">RF3 最終有效空間</span>
-                            <span class="result-value final" id="rf3Final">0.0000 TiB</span>
+                            <span class="result-value final" id="finalRf3">0.0000 TiB</span>
                         </div>
                         <div class="formula-note" id="reserveFormulaNote">
-                            計算：RF × (1 − 20%) × (1 − 10%)
+                            計算：有效空間 × (1 − 20%) × (1 − 10%)
                         </div>
                     </div>
                     
@@ -563,7 +589,7 @@
                             <span class="alert-icon">✅</span>
                             <div>
                                 <strong>所有節點檢查通過</strong>
-                                <div style="margin-top:0.3rem; font-size:0.85rem;">冗餘 Cache 比例符合 1:10 要求，且 Cache 具備冗餘保護。</div>
+                                <div style="margin-top:0.3rem; font-size:0.85rem;">配置符合所有比例與冗餘要求。</div>
                             </div>
                         </div>
                     </div>
@@ -606,12 +632,27 @@
             { label: '18 TB', value: 18 }
         ];
         
+        // All Flash 使用與 Cache 相同的選項（SSD 規格）
+        const ALLFLASH_OPTIONS = CACHE_OPTIONS;
+        
         // ===================== 狀態管理 =====================
-        let nodes = [];
+        let state = {
+            mode: 'hybrid', // 'hybrid' | 'allflash'
+            nodeCount: 3,
+            // Hybrid: 每個節點獨立配置
+            hybridNodes: [],
+            // All Flash: 全局統一配置
+            afDiskOption: 7, // 預設 4TB
+            afDiskCount: 1,
+            // 保留策略
+            storageReserve: { enabled: true, value: 20 },
+            snapshotReserve: { enabled: true, value: 10 }
+        };
+        
         let nextNodeId = 1;
         let nextDiskId = 1;
         
-        function createDefaultNode() {
+        function createHybridNode() {
             return {
                 id: nextNodeId++,
                 cacheDisks: [{ id: `c${nextDiskId++}`, optionIndex: 2 }],   // 預設 1.6TB
@@ -620,7 +661,32 @@
         }
         
         function init() {
-            for (let i = 0; i < 3; i++) nodes.push(createDefaultNode());
+            // 初始化 All Flash 下拉選單
+            const afSelect = document.getElementById('afDiskOption');
+            afSelect.innerHTML = ALLFLASH_OPTIONS.map((opt, i) => 
+                `<option value="${i}" ${i === state.afDiskOption ? 'selected' : ''}>${opt.label}</option>`
+            ).join('');
+            
+            // 初始化 Hybrid 節點
+            for (let i = 0; i < state.nodeCount; i++) {
+                state.hybridNodes.push(createHybridNode());
+            }
+            
+            renderAll();
+            calculate();
+        }
+        
+        // ===================== 模式切換 =====================
+        function setMode(mode) {
+            state.mode = mode;
+            document.getElementById('btnHybrid').classList.toggle('active', mode === 'hybrid');
+            document.getElementById('btnAllFlash').classList.toggle('active', mode === 'allflash');
+            document.getElementById('afGlobalConfig').style.display = mode === 'allflash' ? 'block' : 'none';
+            
+            // 顯示/隱藏 Hybrid 專用結果欄位
+            document.getElementById('rowAvgCache').style.display = mode === 'hybrid' ? 'flex' : 'none';
+            document.getElementById('rowGlobalRatio').style.display = mode === 'hybrid' ? 'flex' : 'none';
+            
             renderAll();
             calculate();
         }
@@ -628,125 +694,173 @@
         // ===================== 渲染 =====================
         function renderAll() {
             renderNodes();
-            document.getElementById('nodeCount').value = nodes.length;
+            document.getElementById('nodeCount').value = state.mode === 'hybrid' ? state.hybridNodes.length : state.nodeCount;
         }
         
         function renderNodes() {
             const container = document.getElementById('nodesContainer');
             container.innerHTML = '';
             
-            nodes.forEach((node, index) => {
-                const calc = calculateNode(node);
-                const redundantCache = calc.cacheUsable / 2;
-                // 4.3.1: 冗餘Cache / Capacity > 1:10  => redundantCache / capacityUsable > 0.1
-                const isRatioOk = calc.capacityUsable > 0 ? (redundantCache / calc.capacityUsable) >= 0.1 : true;
-                // 4.3.2: 單顆 Cache Disk 警告
-                const isSingleCache = node.cacheDisks.length === 1;
-                
-                const card = document.createElement('div');
-                card.className = 'node-card';
-                if (!isRatioOk && calc.capacityUsable > 0) card.classList.add('invalid');
-                else if (isSingleCache) card.classList.add('warn');
-                card.id = `node-${node.id}`;
-                
-                let cacheHtml = '';
-                node.cacheDisks.forEach(disk => {
-                    cacheHtml += `
-                        <div class="disk-row">
-                            <select onchange="updateCacheDisk(${node.id}, '${disk.id}', this.value)">
-                                ${CACHE_OPTIONS.map((opt, i) => 
-                                    `<option value="${i}" ${i === disk.optionIndex ? 'selected' : ''}>${opt.label}</option>`
-                                ).join('')}
-                            </select>
-                            ${node.cacheDisks.length > 1 ? `<button class="btn-delete-disk" onclick="removeCacheDisk(${node.id}, '${disk.id}')" title="移除">✕</button>` : ''}
-                        </div>
-                    `;
-                });
-                
-                let capacityHtml = '';
-                node.capacityDisks.forEach(disk => {
-                    capacityHtml += `
-                        <div class="disk-row">
-                            <select onchange="updateCapacityDisk(${node.id}, '${disk.id}', this.value)">
-                                ${CAPACITY_OPTIONS.map((opt, i) => 
-                                    `<option value="${i}" ${i === disk.optionIndex ? 'selected' : ''}>${opt.label}</option>`
-                                ).join('')}
-                            </select>
-                            ${node.capacityDisks.length > 1 ? `<button class="btn-delete-disk" onclick="removeCapacityDisk(${node.id}, '${disk.id}')" title="移除">✕</button>` : ''}
-                        </div>
-                    `;
-                });
-                
-                card.innerHTML = `
-                    <div class="node-header">
-                        <div>
-                            <span class="node-title">Node ${index + 1}</span>
-                            <span class="node-badge">${node.cacheDisks.length}C / ${node.capacityDisks.length}D</span>
-                        </div>
-                        ${nodes.length > 1 ? `<button class="btn-remove-node" onclick="removeNode(${node.id})">移除節點</button>` : ''}
-                    </div>
-                    
-                    <div class="disk-section">
-                        <div class="disk-section-title">💾 Cache Disk</div>
-                        ${cacheHtml}
-                        <button class="btn-add-disk" onclick="addCacheDisk(${node.id})">+ 新增 Cache Disk</button>
-                    </div>
-                    
-                    <div class="disk-section">
-                        <div class="disk-section-title">🗄️ Capacity Disk</div>
-                        ${capacityHtml}
-                        <button class="btn-add-disk" onclick="addCapacityDisk(${node.id})">+ 新增 Capacity Disk</button>
-                    </div>
-                    
-                    <div class="node-summary">
-                        <div class="node-summary-row">
-                            <span class="node-summary-label">Cache 可用</span>
-                            <span class="node-summary-value ${calc.cacheUsable > 0 ? 'ok' : ''}">${calc.cacheUsable.toFixed(4)} TiB</span>
-                        </div>
-                        <div class="node-summary-row">
-                            <span class="node-summary-label">冗餘 Cache 可用</span>
-                            <span class="node-summary-value">${redundantCache.toFixed(4)} TiB</span>
-                        </div>
-                        <div class="node-summary-row">
-                            <span class="node-summary-label">Capacity 可用</span>
-                            <span class="node-summary-value">${calc.capacityUsable.toFixed(4)} TiB</span>
-                        </div>
-                        <div class="node-summary-row">
-                            <span class="node-summary-label">比例檢查 (≥1:10)</span>
-                            <span class="node-summary-value ${isRatioOk ? 'ok' : (calc.capacityUsable > 0 ? 'err' : '')}">
-                                ${calc.capacityUsable > 0 ? (isRatioOk ? '通過' : '不足') : '-'}
-                            </span>
-                        </div>
-                        ${isSingleCache ? `
-                        <div class="node-summary-row">
-                            <span class="node-summary-label">冗餘保護</span>
-                            <span class="node-summary-value warn">無冗餘</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
-                
-                container.appendChild(card);
-            });
+            const count = state.mode === 'hybrid' ? state.hybridNodes.length : state.nodeCount;
+            
+            for (let i = 0; i < count; i++) {
+                if (state.mode === 'hybrid') {
+                    renderHybridNodeCard(container, state.hybridNodes[i], i);
+                } else {
+                    renderAllFlashNodeCard(container, i);
+                }
+            }
         }
         
-        // ===================== 節點操作 =====================
+        function renderHybridNodeCard(container, node, index) {
+            const calc = calcHybridNode(node);
+            const redundantCache = calc.cacheUsable / 2;
+            const isRatioOk = calc.capacityUsable > 0 ? (redundantCache / calc.capacityUsable) >= (1/9) : true;
+            const isSingleCache = node.cacheDisks.length === 1;
+            
+            const card = document.createElement('div');
+            card.className = 'node-card';
+            if (!isRatioOk && calc.capacityUsable > 0) card.classList.add('invalid');
+            else if (isSingleCache) card.classList.add('warn');
+            
+            let cacheHtml = '';
+            node.cacheDisks.forEach(disk => {
+                cacheHtml += `
+                    <div class="disk-row">
+                        <select onchange="updateCacheDisk(${node.id}, '${disk.id}', this.value)">
+                            ${CACHE_OPTIONS.map((opt, i) => 
+                                `<option value="${i}" ${i === disk.optionIndex ? 'selected' : ''}>${opt.label}</option>`
+                            ).join('')}
+                        </select>
+                        ${node.cacheDisks.length > 1 ? `<button class="btn-delete-disk" onclick="removeCacheDisk(${node.id}, '${disk.id}')" title="移除">✕</button>` : ''}
+                    </div>
+                `;
+            });
+            
+            let capacityHtml = '';
+            node.capacityDisks.forEach(disk => {
+                capacityHtml += `
+                    <div class="disk-row">
+                        <select onchange="updateCapacityDisk(${node.id}, '${disk.id}', this.value)">
+                            ${CAPACITY_OPTIONS.map((opt, i) => 
+                                `<option value="${i}" ${i === disk.optionIndex ? 'selected' : ''}>${opt.label}</option>`
+                            ).join('')}
+                        </select>
+                        ${node.capacityDisks.length > 1 ? `<button class="btn-delete-disk" onclick="removeCapacityDisk(${node.id}, '${disk.id}')" title="移除">✕</button>` : ''}
+                    </div>
+                `;
+            });
+            
+            card.innerHTML = `
+                <div class="node-header">
+                    <div>
+                        <span class="node-title">Node ${index + 1}</span>
+                        <span class="node-badge">${node.cacheDisks.length}C / ${node.capacityDisks.length}D</span>
+                    </div>
+                    ${state.hybridNodes.length > 1 ? `<button class="btn-remove-node" onclick="removeNode(${node.id})">移除節點</button>` : ''}
+                </div>
+                
+                <div class="disk-section">
+                    <div class="disk-section-title">💾 Cache Disk</div>
+                    ${cacheHtml}
+                    <button class="btn-add-disk" onclick="addCacheDisk(${node.id})">+ 新增 Cache Disk</button>
+                </div>
+                
+                <div class="disk-section">
+                    <div class="disk-section-title">🗄️ Capacity Disk</div>
+                    ${capacityHtml}
+                    <button class="btn-add-disk" onclick="addCapacityDisk(${node.id})">+ 新增 Capacity Disk</button>
+                </div>
+                
+                <div class="node-summary">
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">Cache 可用</span>
+                        <span class="node-summary-value ${calc.cacheUsable > 0 ? 'ok' : ''}">${calc.cacheUsable.toFixed(4)} TiB</span>
+                    </div>
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">冗餘 Cache (÷2)</span>
+                        <span class="node-summary-value">${redundantCache.toFixed(4)} TiB</span>
+                    </div>
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">Capacity 可用</span>
+                        <span class="node-summary-value">${calc.capacityUsable.toFixed(4)} TiB</span>
+                    </div>
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">比例檢查 (≥1:9)</span>
+                        <span class="node-summary-value ${isRatioOk ? 'ok' : (calc.capacityUsable > 0 ? 'err' : '')}">
+                            ${calc.capacityUsable > 0 ? (isRatioOk ? '通過' : '不足') : '-'}
+                        </span>
+                    </div>
+                    ${isSingleCache ? `
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">冗餘保護</span>
+                        <span class="node-summary-value warn">無冗餘（單碟）</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            container.appendChild(card);
+        }
+        
+        function renderAllFlashNodeCard(container, index) {
+            const calc = calcAllFlashNode();
+            const opt = ALLFLASH_OPTIONS[state.afDiskOption];
+            
+            const card = document.createElement('div');
+            card.className = 'node-card';
+            
+            card.innerHTML = `
+                <div class="node-header">
+                    <div>
+                        <span class="node-title">Node ${index + 1}</span>
+                        <span class="node-badge">All Flash</span>
+                    </div>
+                </div>
+                
+                <div class="readonly-info">
+                    <div style="margin-bottom:0.5rem;"><strong>硬碟規格：</strong>${opt.label}</div>
+                    <div><strong>硬碟數量：</strong>${state.afDiskCount} 顆</div>
+                </div>
+                
+                <div class="node-summary">
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">Capacity 可用</span>
+                        <span class="node-summary-value ok">${calc.capacityUsable.toFixed(4)} TiB</span>
+                    </div>
+                    <div class="node-summary-row">
+                        <span class="node-summary-label">原始換算</span>
+                        <span class="node-summary-value">${calc.rawTB.toFixed(4)} TiB</span>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(card);
+        }
+        
+        // ===================== 節點操作（Hybrid） =====================
         function addNode() {
-            if (nodes.length >= 64) { alert('節點數量上限為 64'); return; }
-            nodes.push(createDefaultNode());
+            if (state.mode === 'hybrid') {
+                if (state.hybridNodes.length >= 64) { alert('節點數量上限為 64'); return; }
+                state.hybridNodes.push(createHybridNode());
+            } else {
+                if (state.nodeCount >= 64) { alert('節點數量上限為 64'); return; }
+                state.nodeCount++;
+            }
             renderAll();
             calculate();
         }
         
         function removeNode(nodeId) {
-            if (nodes.length <= 1) { alert('至少需要保留 1 個節點'); return; }
-            nodes = nodes.filter(n => n.id !== nodeId);
+            if (state.mode !== 'hybrid') return;
+            if (state.hybridNodes.length <= 1) { alert('至少需要保留 1 個節點'); return; }
+            state.hybridNodes = state.hybridNodes.filter(n => n.id !== nodeId);
             renderAll();
             calculate();
         }
         
         function addCacheDisk(nodeId) {
-            const node = nodes.find(n => n.id === nodeId);
+            const node = state.hybridNodes.find(n => n.id === nodeId);
             if (!node || node.cacheDisks.length >= 12) { alert('每節點 Cache Disk 上限為 12 顆'); return; }
             node.cacheDisks.push({ id: `c${nextDiskId++}`, optionIndex: 0 });
             renderNodes();
@@ -754,7 +868,7 @@
         }
         
         function removeCacheDisk(nodeId, diskId) {
-            const node = nodes.find(n => n.id === nodeId);
+            const node = state.hybridNodes.find(n => n.id === nodeId);
             if (!node || node.cacheDisks.length <= 1) return;
             node.cacheDisks = node.cacheDisks.filter(d => d.id !== diskId);
             renderNodes();
@@ -762,7 +876,7 @@
         }
         
         function updateCacheDisk(nodeId, diskId, optionIndex) {
-            const node = nodes.find(n => n.id === nodeId);
+            const node = state.hybridNodes.find(n => n.id === nodeId);
             if (!node) return;
             const disk = node.cacheDisks.find(d => d.id === diskId);
             if (disk) disk.optionIndex = parseInt(optionIndex);
@@ -771,7 +885,7 @@
         }
         
         function addCapacityDisk(nodeId) {
-            const node = nodes.find(n => n.id === nodeId);
+            const node = state.hybridNodes.find(n => n.id === nodeId);
             if (!node || node.capacityDisks.length >= 24) { alert('每節點 Capacity Disk 上限為 24 顆'); return; }
             node.capacityDisks.push({ id: `d${nextDiskId++}`, optionIndex: 0 });
             renderNodes();
@@ -779,7 +893,7 @@
         }
         
         function removeCapacityDisk(nodeId, diskId) {
-            const node = nodes.find(n => n.id === nodeId);
+            const node = state.hybridNodes.find(n => n.id === nodeId);
             if (!node || node.capacityDisks.length <= 1) return;
             node.capacityDisks = node.capacityDisks.filter(d => d.id !== diskId);
             renderNodes();
@@ -787,7 +901,7 @@
         }
         
         function updateCapacityDisk(nodeId, diskId, optionIndex) {
-            const node = nodes.find(n => n.id === nodeId);
+            const node = state.hybridNodes.find(n => n.id === nodeId);
             if (!node) return;
             const disk = node.capacityDisks.find(d => d.id === diskId);
             if (disk) disk.optionIndex = parseInt(optionIndex);
@@ -796,80 +910,108 @@
         }
         
         function resetAll() {
-            if (!confirm('確定要重置所有節點配置嗎？')) return;
-            nodes = [];
+            if (!confirm('確定要重置所有配置嗎？')) return;
+            state.hybridNodes = [];
             nextNodeId = 1;
-            for (let i = 0; i < 3; i++) nodes.push(createDefaultNode());
+            for (let i = 0; i < 3; i++) state.hybridNodes.push(createHybridNode());
+            state.nodeCount = 3;
+            state.afDiskOption = 7;
+            state.afDiskCount = 1;
+            document.getElementById('afDiskOption').value = 7;
+            document.getElementById('afDiskCount').value = 1;
             document.getElementById('storageReserveEnabled').checked = true;
             document.getElementById('storageReservePct').value = 20;
             document.getElementById('snapshotReserveEnabled').checked = true;
             document.getElementById('snapshotReservePct').value = 10;
-            renderAll();
-            calculate();
+            setMode('hybrid');
         }
         
         // ===================== 計算核心 =====================
-        function calculateNode(node) {
-            // 4.1.1 / 4.1.2 Cache 可用空間
+        function calcHybridNode(node) {
+            // 4.1.1 / 4.1.2 Cache 可用
             let cacheRawTB = 0;
             node.cacheDisks.forEach(d => {
                 const opt = CACHE_OPTIONS[d.optionIndex];
-                if (opt.unit === 'GB') {
-                    cacheRawTB += opt.value * 0.000909495;
-                } else {
-                    cacheRawTB += opt.value * 0.909495;
-                }
+                if (opt.unit === 'GB') cacheRawTB += opt.value * 0.000909495;
+                else cacheRawTB += opt.value * 0.909495;
             });
             const cacheUsable = Math.max(0, cacheRawTB - (20 / 1024));
             
-            // 4.2 Capacity 可用空間
-            let capacityRawSumGB = 0;
+            // 4.1.3 Capacity 可用
+            let capSumGB = 0;
             node.capacityDisks.forEach(d => {
-                const opt = CAPACITY_OPTIONS[d.optionIndex];
-                capacityRawSumGB += opt.value * 1000; // TB -> GB
+                capSumGB += CAPACITY_OPTIONS[d.optionIndex].value * 1000;
             });
-            const capacityRawTB = capacityRawSumGB * 0.000909495;
-            const capacityUsable = capacityRawTB * (1 - 0.0585);
+            const capRawTB = capSumGB * 0.000909495;
+            const capacityUsable = capRawTB * (1 - 0.0585);
             
-            return { cacheRawTB, cacheUsable, capacityRawTB, capacityUsable };
+            return { cacheUsable, capacityUsable, rawCacheTB: cacheRawTB, rawCapTB: capRawTB };
+        }
+        
+        function calcAllFlashNode() {
+            // 5.2.1 / 5.2.2 All Flash Capacity 可用
+            const opt = ALLFLASH_OPTIONS[state.afDiskOption];
+            let rawTB = 0;
+            if (opt.unit === 'GB') {
+                rawTB = opt.value * state.afDiskCount * 0.000909495;
+            } else {
+                rawTB = opt.value * state.afDiskCount * 0.909495;
+            }
+            return { capacityUsable: rawTB, rawTB };
         }
         
         function calculate() {
-            const nodeResults = nodes.map(calculateNode);
-            const N = nodes.length;
+            const N = state.mode === 'hybrid' ? state.hybridNodes.length : state.nodeCount;
             
-            // 平均每節點
-            const totalCacheUsable = nodeResults.reduce((s, r) => s + r.cacheUsable, 0);
-            const totalCapacityUsable = nodeResults.reduce((s, r) => s + r.capacityUsable, 0);
-            const avgCacheUsable = totalCacheUsable / N;
-            const avgCapacityUsable = totalCapacityUsable / N;
+            let avgCacheUsable = 0;
+            let avgCapacityUsable = 0;
+            let ratioInvalidNodes = [];
+            let singleCacheNodes = [];
             
-            // 4.3.1 比例檢查：冗餘Cache (CacheUsable/2) / CapacityUsable >= 1/10
-            const ratioInvalidNodes = [];
-            // 4.3.2 單顆 Cache 警告
-            const singleCacheNodes = [];
+            if (state.mode === 'hybrid') {
+                const results = state.hybridNodes.map(calcHybridNode);
+                const totalCache = results.reduce((s, r) => s + r.cacheUsable, 0);
+                const totalCap = results.reduce((s, r) => s + r.capacityUsable, 0);
+                avgCacheUsable = totalCache / N;
+                avgCapacityUsable = totalCap / N;
+                
+                // 4.2.1 比例檢查：冗餘Cache (Cache/2) / Capacity >= 1/9
+                results.forEach((r, i) => {
+                    const redundant = r.cacheUsable / 2;
+                    if (r.capacityUsable > 0 && (redundant / r.capacityUsable) < (1/9)) {
+                        ratioInvalidNodes.push({
+                            index: i + 1,
+                            redundant,
+                            capacity: r.capacityUsable,
+                            need: r.capacityUsable / 9
+                        });
+                    }
+                    // 4.2.2 單顆 Cache 警告
+                    if (state.hybridNodes[i].cacheDisks.length === 1) {
+                        singleCacheNodes.push({ index: i + 1 });
+                    }
+                });
+            } else {
+                // All Flash
+                const result = calcAllFlashNode();
+                avgCapacityUsable = result.capacityUsable;
+                // All Flash 沒有 Cache
+                avgCacheUsable = 0;
+            }
             
-            nodeResults.forEach((r, i) => {
-                const redundantCache = r.cacheUsable / 2;
-                if (r.capacityUsable > 0 && (redundantCache / r.capacityUsable) < 0.1) {
-                    ratioInvalidNodes.push({
-                        index: i + 1,
-                        redundantCache,
-                        capacity: r.capacityUsable,
-                        need: r.capacityUsable / 10
-                    });
-                }
-                if (nodes[i].cacheDisks.length === 1) {
-                    singleCacheNodes.push({ index: i + 1 });
-                }
-            });
+            // 6.1 整體系統顯示可用空間（使用節點數 N）
+            // 6.1.1 RF2: 每節點 Capacity × N / 2
+            const sysRf2 = N >= 2 ? avgCapacityUsable * N / 2 : 0;
+            // 6.1.2 RF3: 每節點 Capacity × N / 3
+            const sysRf3 = N >= 3 ? avgCapacityUsable * N / 3 : 0;
             
-            // 4.4.1 RF2 = 每個節點Capacity可用空間 * (節點數-1) / 2
-            const rf2Raw = N >= 2 ? avgCapacityUsable * (N - 1) / 2 : 0;
-            // 4.4.2 RF3 = 每個節點Capacity可用空間 * (節點數-1) / 3
-            const rf3Raw = N >= 3 ? avgCapacityUsable * (N - 1) / 3 : 0;
+            // 6.2 整體有效可用空間 N+1（使用 N-1）
+            // 6.2.1 RF2: 每節點 Capacity × (N-1) / 2
+            const effRf2 = N >= 2 ? avgCapacityUsable * (N - 1) / 2 : 0;
+            // 6.2.2 RF3: 每節點 Capacity × (N-1) / 3
+            const effRf3 = N >= 3 ? avgCapacityUsable * (N - 1) / 3 : 0;
             
-            // 4.5 / 4.6 保留策略
+            // 7.1 / 7.2 保留策略（僅套用於有效可用空間）
             const storageEnabled = document.getElementById('storageReserveEnabled').checked;
             const storagePct = parseFloat(document.getElementById('storageReservePct').value) || 0;
             const snapshotEnabled = document.getElementById('snapshotReserveEnabled').checked;
@@ -879,43 +1021,55 @@
             const snapshotFactor = snapshotEnabled ? (1 - snapshotPct / 100) : 1;
             const totalFactor = storageFactor * snapshotFactor;
             
-            const rf2Final = rf2Raw * totalFactor;
-            const rf3Final = rf3Raw * totalFactor;
+            const finalRf2 = effRf2 * totalFactor;
+            const finalRf3 = effRf3 * totalFactor;
             
             // ===================== 更新 UI =====================
-            document.getElementById('avgCacheUsable').textContent = avgCacheUsable.toFixed(4) + ' TiB';
-            document.getElementById('avgCapacityUsable').textContent = avgCapacityUsable.toFixed(4) + ' TiB';
-            
-            const ratioEl = document.getElementById('globalRatio');
-            if (avgCapacityUsable > 0) {
-                const redundantAvg = avgCacheUsable / 2;
-                const ratio = redundantAvg / avgCapacityUsable;
-                const displayRatio = ratio > 0 ? `1 : ${(1 / ratio).toFixed(1)}` : '-';
-                ratioEl.textContent = displayRatio;
-                ratioEl.style.color = ratio >= 0.1 ? 'var(--success)' : 'var(--danger)';
-            } else {
-                ratioEl.textContent = '-';
-                ratioEl.style.color = '';
+            if (state.mode === 'hybrid') {
+                document.getElementById('avgCacheUsable').textContent = avgCacheUsable.toFixed(4) + ' TiB';
+                const ratioEl = document.getElementById('globalRatio');
+                if (avgCapacityUsable > 0) {
+                    const redundantAvg = avgCacheUsable / 2;
+                    const ratio = redundantAvg / avgCapacityUsable;
+                    ratioEl.textContent = ratio > 0 ? `1 : ${(1 / ratio).toFixed(1)}` : '-';
+                    ratioEl.style.color = ratio >= (1/9) ? 'var(--success)' : 'var(--danger)';
+                } else {
+                    ratioEl.textContent = '-';
+                    ratioEl.style.color = '';
+                }
             }
             
-            document.getElementById('rf2Raw').textContent = rf2Raw > 0 
-                ? rf2Raw.toFixed(4) + ' TiB' 
+            document.getElementById('avgCapacityUsable').textContent = avgCapacityUsable.toFixed(4) + ' TiB';
+            
+            // 系統顯示可用空間
+            document.getElementById('sysRf2').textContent = sysRf2 > 0 
+                ? sysRf2.toFixed(4) + ' TiB' 
                 : (N < 2 ? 'N/A (需≥2節點)' : '0.0000 TiB');
-            document.getElementById('rf3Raw').textContent = rf3Raw > 0 
-                ? rf3Raw.toFixed(4) + ' TiB' 
+            document.getElementById('sysRf3').textContent = sysRf3 > 0 
+                ? sysRf3.toFixed(4) + ' TiB' 
                 : (N < 3 ? 'N/A (需≥3節點)' : '0.0000 TiB');
             
-            document.getElementById('rf2Final').textContent = rf2Final > 0 
-                ? rf2Final.toFixed(4) + ' TiB' 
+            // 有效可用空間（N+1）
+            document.getElementById('effRf2').textContent = effRf2 > 0 
+                ? effRf2.toFixed(4) + ' TiB' 
+                : (N < 2 ? 'N/A (需≥2節點)' : '0.0000 TiB');
+            document.getElementById('effRf3').textContent = effRf3 > 0 
+                ? effRf3.toFixed(4) + ' TiB' 
+                : (N < 3 ? 'N/A (需≥3節點)' : '0.0000 TiB');
+            
+            // 最終保留後
+            document.getElementById('finalRf2').textContent = finalRf2 > 0 
+                ? finalRf2.toFixed(4) + ' TiB' 
                 : (N < 2 ? 'N/A' : '0.0000 TiB');
-            document.getElementById('rf3Final').textContent = rf3Final > 0 
-                ? rf3Final.toFixed(4) + ' TiB' 
+            document.getElementById('finalRf3').textContent = finalRf3 > 0 
+                ? finalRf3.toFixed(4) + ' TiB' 
                 : (N < 3 ? 'N/A' : '0.0000 TiB');
             
+            // 保留策略說明
             const sPct = storageEnabled ? storagePct : 0;
             const snPct = snapshotEnabled ? snapshotPct : 0;
             document.getElementById('reserveFormulaNote').textContent = 
-                `計算：RF × (1 − ${sPct}%) × (1 − ${snPct}%) = RF × ${(totalFactor * 100).toFixed(0)}%`;
+                `計算：有效空間 × (1 − ${sPct}%) × (1 − ${snPct}%) = 有效空間 × ${(totalFactor * 100).toFixed(0)}%`;
             
             document.getElementById('storageReserveDetail').textContent = 
                 storageEnabled ? `保留後可用：${(100 - storagePct)}%` : '未啟用';
@@ -932,25 +1086,31 @@
             let hasError = false;
             let hasWarning = false;
             
-            // 比例不足告警 (4.3.1)
-            if (ratioInvalidNodes.length > 0) {
-                let html = ratioInvalidNodes.map(n => 
-                    `Node ${n.index}：冗餘 Cache ${n.redundantCache.toFixed(4)} TiB，需要 ≥ ${n.need.toFixed(4)} TiB`
-                ).join('<br>');
-                ratioAlertDetail.innerHTML = html;
-                ratioAlert.classList.add('show');
-                hasError = true;
+            if (state.mode === 'hybrid') {
+                // 比例不足
+                if (ratioInvalidNodes.length > 0) {
+                    let html = ratioInvalidNodes.map(n => 
+                        `Node ${n.index}：冗餘 Cache ${n.redundant.toFixed(4)} TiB，需要 ≥ ${n.need.toFixed(4)} TiB`
+                    ).join('<br>');
+                    ratioAlertDetail.innerHTML = html;
+                    ratioAlert.classList.add('show');
+                    hasError = true;
+                } else {
+                    ratioAlert.classList.remove('show');
+                }
+                
+                // 單顆 Cache
+                if (singleCacheNodes.length > 0) {
+                    let html = singleCacheNodes.map(n => `Node ${n.index}`).join('、');
+                    redundancyAlertDetail.innerHTML = `以下節點僅配置 1 顆 Cache Disk：<br><strong>${html}</strong>`;
+                    redundancyAlert.classList.add('show');
+                    hasWarning = true;
+                } else {
+                    redundancyAlert.classList.remove('show');
+                }
             } else {
+                // All Flash 無 Hybrid 告警
                 ratioAlert.classList.remove('show');
-            }
-            
-            // 單顆 Cache 告警 (4.3.2)
-            if (singleCacheNodes.length > 0) {
-                let html = singleCacheNodes.map(n => `Node ${n.index}`).join('、');
-                redundancyAlertDetail.innerHTML = `以下節點僅配置 1 顆 Cache Disk，系統 Cache 沒有冗餘：<br><strong>${html}</strong>`;
-                redundancyAlert.classList.add('show');
-                hasWarning = true;
-            } else {
                 redundancyAlert.classList.remove('show');
             }
             
@@ -965,13 +1125,29 @@
         // ===================== 事件綁定 =====================
         document.getElementById('nodeCount').addEventListener('change', function(e) {
             const newCount = Math.max(1, Math.min(64, parseInt(e.target.value) || 1));
-            const current = nodes.length;
-            if (newCount > current) {
-                for (let i = current; i < newCount; i++) nodes.push(createDefaultNode());
-            } else if (newCount < current) {
-                nodes = nodes.slice(0, newCount);
+            if (state.mode === 'hybrid') {
+                const current = state.hybridNodes.length;
+                if (newCount > current) {
+                    for (let i = current; i < newCount; i++) state.hybridNodes.push(createHybridNode());
+                } else if (newCount < current) {
+                    state.hybridNodes = state.hybridNodes.slice(0, newCount);
+                }
+            } else {
+                state.nodeCount = newCount;
             }
             renderAll();
+            calculate();
+        });
+        
+        document.getElementById('afDiskOption').addEventListener('change', function(e) {
+            state.afDiskOption = parseInt(e.target.value);
+            renderNodes();
+            calculate();
+        });
+        
+        document.getElementById('afDiskCount').addEventListener('input', function(e) {
+            state.afDiskCount = Math.max(1, Math.min(24, parseInt(e.target.value) || 1));
+            renderNodes();
             calculate();
         });
         
