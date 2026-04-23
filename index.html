@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcfra Effective Capacity Calculator</title>
+    <style>
+        :root {
+            --bg-primary: #0b1120;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --bg-hover: #374151;
+            --border: #374151;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .app { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        /* 頂部提示橫幅 */
+        .top-banner {
+            background: linear-gradient(90deg, #1e3a8a, #1e40af);
+            border: 1px solid #3b82f6;
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: #dbeafe;
+        }
+        
+        .top-banner .icon { font-size: 1.3rem; flex-shrink: 0; }
+        
+        header {
+            text-align: center;
+            padding: 0.5rem 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            font-size: 1.85rem;
+            background: linear-gradient(90deg, var(--accent-light), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+        }
+        
+        .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+        
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .card h2 {
+            font-size: 1.1rem;
+            color: var(--accent-light);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group { margin-bottom: 1rem; }
+        
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="number"]:focus, select:focus { border-color: var(--accent); }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        /* 節點網格 */
+        .nodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .node-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .node-card:hover { border-color: var(--accent); }
+        .node-card.invalid { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
+        .node-card.warn { border-color: var(--warning); }
+        
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .node-title {
+            font-weight: 700;
+            color: var(--accent-light);
+            font-size: 1.05rem;
+        }
+        
+        .node-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-remove-node {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-remove-node:hover { background: var(--danger); color: white; }
+        
+        .disk-section { margin-bottom: 1rem; }
+        
+        .disk-section-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .disk-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            animation: slideIn 0.25s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .disk-row select { flex: 1; }
+        
+        .btn-add-disk {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 0.4rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: 0.25rem;
+        }
+        
+        .btn-add-disk:hover {
+            border-color: var(--accent);
+            color: var(--accent-light);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .btn-delete-disk {
+            background: transparent;
+            color: var(--danger);
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-delete-disk:hover { opacity: 1; }
+        
+        .node-summary {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        
+        .node-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.35rem;
+        }
+        
+        .node-summary-row:last-child { margin-bottom: 0; }
+        .node-summary-label { color: var(--text-secondary); }
+        
+        .node-summary-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        
+        .node-summary-value.ok { color: var(--success); }
+        .node-summary-value.warn { color: var(--warning); }
+        .node-summary-value.err { color: var(--danger); }
+        
+        /* 結果面板 */
+        .results-panel { position: sticky; top: 1rem; }
+        
+        .result-block {
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .result-block:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .result-block h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .result-label { color: var(--text-secondary); font-size: 0.9rem; }
+        
+        .result-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .result-value.highlight { color: var(--accent-light); font-size: 1.15rem; }
+        .result-value.final { color: var(--success); font-size: 1.25rem; }
+        
+        /* 保留策略 */
+        .reserve-config {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .reserve-config input[type="number"] {
+            width: 65px;
+            text-align: center;
+        }
+        
+        .reserve-detail {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            text-align: right;
+            margin-top: -0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 告警 */
+        .alert {
+            padding: 0.9rem 1rem;
+            border-radius: 8px;
+            margin-top: 0.75rem;
+            font-size: 0.88rem;
+            display: none;
+            align-items: flex-start;
+            gap: 0.6rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .alert.show { display: flex; }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fcd34d;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: #86efac;
+        }
+        
+        .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+        
+        .global-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover { background: var(--border); }
+        
+        .formula-note {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        
+        .pct-suffix { color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.2rem; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="app">
+        <!-- 頂部提示 -->
+        <div class="top-banner">
+            <span class="icon">ℹ️</span>
+            <div><strong>本工具僅適用於安裝 ACOS 在硬體的 RAID 1 的配置上</strong></div>
+        </div>
+        
+        <header>
+            <h1>Arcfra Effective Capacity Calculator</h1>
+            <p class="subtitle">分散式儲存容量規劃計算器（多節點異構配置）</p>
+        </header>
+        
+        <div class="main-layout">
+            <div class="left-column">
+                <!-- 全局設定 -->
+                <div class="card">
+                    <h2>⚙️ 全局設定</h2>
+                    <div class="form-group">
+                        <label for="nodeCount">叢集節點數量</label>
+                        <input type="number" id="nodeCount" min="1" max="64" value="3">
+                    </div>
+                    
+                    <div style="margin-top: 1.25rem;">
+                        <h3 style="font-size: 0.95rem; color: var(--accent-light); margin-bottom: 0.75rem;">容量保留策略</h3>
+                        
+                        <div class="reserve-config">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="storageReserveEnabled" checked>
+                                儲存空間容量保留
+                            </label>
+                            <div style="display:flex;align-items:center;">
+                                <input type="number" id="storageReservePct" value="20" min="0" max="100" step="1">
+                                <span class="pct-suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="reserve-detail" id="storageReserveDetail">保留後可用：80%</div>
+                        
+                        <div class="reserve-config">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="snapshotReserveEnabled" checked>
+                                快照空間容量保留
+                            </label>
+                            <div style="display:flex;align-items:center;">
+                                <input type="number" id="snapshotReservePct" value="10" min="0" max="100" step="1">
+                                <span class="pct-suffix">%</span>
+                            </div>
+                        </div>
+                        <div class="reserve-detail" id="snapshotReserveDetail">保留後可用：90%</div>
+                    </div>
+                    
+                    <div class="global-actions">
+                        <button class="btn-primary" onclick="addNode()">
+                            <span>+</span> 新增節點
+                        </button>
+                        <button class="btn-secondary" onclick="resetAll()">
+                            重置所有配置
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 節點配置區 -->
+                <div style="margin-top: 1.5rem;">
+                    <h2 style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 0.75rem;">🖥️ 節點配置</h2>
+                    <div class="nodes-grid" id="nodesContainer"></div>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="card results-panel">
+                    <h2>📊 計算結果</h2>
+                    
+                    <div class="result-block">
+                        <h3>每節點平均容量</h3>
+                        <div class="result-row">
+                            <span class="result-label">平均 Cache 可用空間</span>
+                            <span class="result-value" id="avgCacheUsable">0.0000 TiB</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">平均 Capacity 可用空間</span>
+                            <span class="result-value" id="avgCapacityUsable">0.0000 TiB</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">冗餘 Cache / Capacity 比例</span>
+                            <span class="result-value" id="globalRatio">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-block">
+                        <h3>整體有效空間（原始）</h3>
+                        <div class="result-row">
+                            <span class="result-label">RF2 有效空間</span>
+                            <span class="result-value highlight" id="rf2Raw">0.0000 TiB</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">RF3 有效空間</span>
+                            <span class="result-value highlight" id="rf3Raw">0.0000 TiB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-block" id="reserveBlock">
+                        <h3>套用保留策略後</h3>
+                        <div class="result-row">
+                            <span class="result-label">RF2 最終有效空間</span>
+                            <span class="result-value final" id="rf2Final">0.0000 TiB</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">RF3 最終有效空間</span>
+                            <span class="result-value final" id="rf3Final">0.0000 TiB</span>
+                        </div>
+                        <div class="formula-note" id="reserveFormulaNote">
+                            計算：RF × (1 − 20%) × (1 − 10%)
+                        </div>
+                    </div>
+                    
+                    <div id="globalAlerts">
+                        <div class="alert alert-error" id="ratioAlert">
+                            <span class="alert-icon">⛔</span>
+                            <div>
+                                <strong>冗餘 Cache 比例不足</strong>
+                                <div id="ratioAlertDetail" style="margin-top:0.3rem; font-size:0.85rem;"></div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning" id="redundancyAlert">
+                            <span class="alert-icon">⚠️</span>
+                            <div>
+                                <strong>系統 Cache 沒有冗餘</strong>
+                                <div id="redundancyAlertDetail" style="margin-top:0.3rem; font-size:0.85rem;"></div>
+                            </div>
+                        </div>
+                        <div class="alert alert-success" id="allOkAlert">
+                            <span class="alert-icon">✅</span>
+                            <div>
+                                <strong>所有節點檢查通過</strong>
+                                <div style="margin-top:0.3rem; font-size:0.85rem;">冗餘 Cache 比例符合 1:10 要求，且 Cache 具備冗餘保護。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================== 資料定義 =====================
+        const CACHE_OPTIONS = [
+            { label: '960 GB', value: 960, unit: 'GB' },
+            { label: '1 TB', value: 1, unit: 'TB' },
+            { label: '1.6 TB', value: 1.6, unit: 'TB' },
+            { label: '1.92 TB', value: 1.92, unit: 'TB' },
+            { label: '2 TB', value: 2, unit: 'TB' },
+            { label: '3.2 TB', value: 3.2, unit: 'TB' },
+            { label: '3.84 TB', value: 3.84, unit: 'TB' },
+            { label: '4 TB', value: 4, unit: 'TB' },
+            { label: '6.4 TB', value: 6.4, unit: 'TB' },
+            { label: '7.68 TB', value: 7.68, unit: 'TB' },
+            { label: '8 TB', value: 8, unit: 'TB' },
+            { label: '12.8 TB', value: 12.8, unit: 'TB' },
+            { label: '15.36 TB', value: 15.36, unit: 'TB' }
+        ];
+        
+        const CAPACITY_OPTIONS = [
+            { label: '1 TB', value: 1 },
+            { label: '1.2 TB', value: 1.2 },
+            { label: '1.8 TB', value: 1.8 },
+            { label: '2 TB', value: 2 },
+            { label: '2.4 TB', value: 2.4 },
+            { label: '4 TB', value: 4 },
+            { label: '6 TB', value: 6 },
+            { label: '8 TB', value: 8 },
+            { label: '10 TB', value: 10 },
+            { label: '12 TB', value: 12 },
+            { label: '14 TB', value: 14 },
+            { label: '16 TB', value: 16 },
+            { label: '18 TB', value: 18 }
+        ];
+        
+        // ===================== 狀態管理 =====================
+        let nodes = [];
+        let nextNodeId = 1;
+        let nextDiskId = 1;
+        
+        function createDefaultNode() {
+            return {
+                id: nextNodeId++,
+                cacheDisks: [{ id: `c${nextDiskId++}`, optionIndex: 2 }],   // 預設 1.6TB
+                capacityDisks: [{ id: `d${nextDiskId++}`, optionIndex: 5 }] // 預設 4TB
+            };
+        }
+        
+        function init() {
+            for (let i = 0; i < 3; i++) nodes.push(createDefaultNode());
+            renderAll();
+            calculate();
+        }
+        
+        // ===================== 渲染 =====================
+        function renderAll() {
+            renderNodes();
+            document.getElementById('nodeCount').value = nodes.length;
+        }
+        
+        function renderNodes() {
+            const container = document.getElementById('nodesContainer');
+            container.innerHTML = '';
+            
+            nodes.forEach((node, index) => {
+                const calc = calculateNode(node);
+                const redundantCache = calc.cacheUsable / 2;
+                // 4.3.1: 冗餘Cache / Capacity > 1:10  => redundantCache / capacityUsable > 0.1
+                const isRatioOk = calc.capacityUsable > 0 ? (redundantCache / calc.capacityUsable) >= 0.1 : true;
+                // 4.3.2: 單顆 Cache Disk 警告
+                const isSingleCache = node.cacheDisks.length === 1;
+                
+                const card = document.createElement('div');
+                card.className = 'node-card';
+                if (!isRatioOk && calc.capacityUsable > 0) card.classList.add('invalid');
+                else if (isSingleCache) card.classList.add('warn');
+                card.id = `node-${node.id}`;
+                
+                let cacheHtml = '';
+                node.cacheDisks.forEach(disk => {
+                    cacheHtml += `
+                        <div class="disk-row">
+                            <select onchange="updateCacheDisk(${node.id}, '${disk.id}', this.value)">
+                                ${CACHE_OPTIONS.map((opt, i) => 
+                                    `<option value="${i}" ${i === disk.optionIndex ? 'selected' : ''}>${opt.label}</option>`
+                                ).join('')}
+                            </select>
+                            ${node.cacheDisks.length > 1 ? `<button class="btn-delete-disk" onclick="removeCacheDisk(${node.id}, '${disk.id}')" title="移除">✕</button>` : ''}
+                        </div>
+                    `;
+                });
+                
+                let capacityHtml = '';
+                node.capacityDisks.forEach(disk => {
+                    capacityHtml += `
+                        <div class="disk-row">
+                            <select onchange="updateCapacityDisk(${node.id}, '${disk.id}', this.value)">
+                                ${CAPACITY_OPTIONS.map((opt, i) => 
+                                    `<option value="${i}" ${i === disk.optionIndex ? 'selected' : ''}>${opt.label}</option>`
+                                ).join('')}
+                            </select>
+                            ${node.capacityDisks.length > 1 ? `<button class="btn-delete-disk" onclick="removeCapacityDisk(${node.id}, '${disk.id}')" title="移除">✕</button>` : ''}
+                        </div>
+                    `;
+                });
+                
+                card.innerHTML = `
+                    <div class="node-header">
+                        <div>
+                            <span class="node-title">Node ${index + 1}</span>
+                            <span class="node-badge">${node.cacheDisks.length}C / ${node.capacityDisks.length}D</span>
+                        </div>
+                        ${nodes.length > 1 ? `<button class="btn-remove-node" onclick="removeNode(${node.id})">移除節點</button>` : ''}
+                    </div>
+                    
+                    <div class="disk-section">
+                        <div class="disk-section-title">💾 Cache Disk</div>
+                        ${cacheHtml}
+                        <button class="btn-add-disk" onclick="addCacheDisk(${node.id})">+ 新增 Cache Disk</button>
+                    </div>
+                    
+                    <div class="disk-section">
+                        <div class="disk-section-title">🗄️ Capacity Disk</div>
+                        ${capacityHtml}
+                        <button class="btn-add-disk" onclick="addCapacityDisk(${node.id})">+ 新增 Capacity Disk</button>
+                    </div>
+                    
+                    <div class="node-summary">
+                        <div class="node-summary-row">
+                            <span class="node-summary-label">Cache 可用</span>
+                            <span class="node-summary-value ${calc.cacheUsable > 0 ? 'ok' : ''}">${calc.cacheUsable.toFixed(4)} TiB</span>
+                        </div>
+                        <div class="node-summary-row">
+                            <span class="node-summary-label">冗餘 Cache 可用</span>
+                            <span class="node-summary-value">${redundantCache.toFixed(4)} TiB</span>
+                        </div>
+                        <div class="node-summary-row">
+                            <span class="node-summary-label">Capacity 可用</span>
+                            <span class="node-summary-value">${calc.capacityUsable.toFixed(4)} TiB</span>
+                        </div>
+                        <div class="node-summary-row">
+                            <span class="node-summary-label">比例檢查 (≥1:10)</span>
+                            <span class="node-summary-value ${isRatioOk ? 'ok' : (calc.capacityUsable > 0 ? 'err' : '')}">
+                                ${calc.capacityUsable > 0 ? (isRatioOk ? '通過' : '不足') : '-'}
+                            </span>
+                        </div>
+                        ${isSingleCache ? `
+                        <div class="node-summary-row">
+                            <span class="node-summary-label">冗餘保護</span>
+                            <span class="node-summary-value warn">無冗餘</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // ===================== 節點操作 =====================
+        function addNode() {
+            if (nodes.length >= 64) { alert('節點數量上限為 64'); return; }
+            nodes.push(createDefaultNode());
+            renderAll();
+            calculate();
+        }
+        
+        function removeNode(nodeId) {
+            if (nodes.length <= 1) { alert('至少需要保留 1 個節點'); return; }
+            nodes = nodes.filter(n => n.id !== nodeId);
+            renderAll();
+            calculate();
+        }
+        
+        function addCacheDisk(nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node || node.cacheDisks.length >= 12) { alert('每節點 Cache Disk 上限為 12 顆'); return; }
+            node.cacheDisks.push({ id: `c${nextDiskId++}`, optionIndex: 0 });
+            renderNodes();
+            calculate();
+        }
+        
+        function removeCacheDisk(nodeId, diskId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node || node.cacheDisks.length <= 1) return;
+            node.cacheDisks = node.cacheDisks.filter(d => d.id !== diskId);
+            renderNodes();
+            calculate();
+        }
+        
+        function updateCacheDisk(nodeId, diskId, optionIndex) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node) return;
+            const disk = node.cacheDisks.find(d => d.id === diskId);
+            if (disk) disk.optionIndex = parseInt(optionIndex);
+            renderNodes();
+            calculate();
+        }
+        
+        function addCapacityDisk(nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node || node.capacityDisks.length >= 24) { alert('每節點 Capacity Disk 上限為 24 顆'); return; }
+            node.capacityDisks.push({ id: `d${nextDiskId++}`, optionIndex: 0 });
+            renderNodes();
+            calculate();
+        }
+        
+        function removeCapacityDisk(nodeId, diskId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node || node.capacityDisks.length <= 1) return;
+            node.capacityDisks = node.capacityDisks.filter(d => d.id !== diskId);
+            renderNodes();
+            calculate();
+        }
+        
+        function updateCapacityDisk(nodeId, diskId, optionIndex) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node) return;
+            const disk = node.capacityDisks.find(d => d.id === diskId);
+            if (disk) disk.optionIndex = parseInt(optionIndex);
+            renderNodes();
+            calculate();
+        }
+        
+        function resetAll() {
+            if (!confirm('確定要重置所有節點配置嗎？')) return;
+            nodes = [];
+            nextNodeId = 1;
+            for (let i = 0; i < 3; i++) nodes.push(createDefaultNode());
+            document.getElementById('storageReserveEnabled').checked = true;
+            document.getElementById('storageReservePct').value = 20;
+            document.getElementById('snapshotReserveEnabled').checked = true;
+            document.getElementById('snapshotReservePct').value = 10;
+            renderAll();
+            calculate();
+        }
+        
+        // ===================== 計算核心 =====================
+        function calculateNode(node) {
+            // 4.1.1 / 4.1.2 Cache 可用空間
+            let cacheRawTB = 0;
+            node.cacheDisks.forEach(d => {
+                const opt = CACHE_OPTIONS[d.optionIndex];
+                if (opt.unit === 'GB') {
+                    cacheRawTB += opt.value * 0.000909495;
+                } else {
+                    cacheRawTB += opt.value * 0.909495;
+                }
+            });
+            const cacheUsable = Math.max(0, cacheRawTB - (20 / 1024));
+            
+            // 4.2 Capacity 可用空間
+            let capacityRawSumGB = 0;
+            node.capacityDisks.forEach(d => {
+                const opt = CAPACITY_OPTIONS[d.optionIndex];
+                capacityRawSumGB += opt.value * 1000; // TB -> GB
+            });
+            const capacityRawTB = capacityRawSumGB * 0.000909495;
+            const capacityUsable = capacityRawTB * (1 - 0.0585);
+            
+            return { cacheRawTB, cacheUsable, capacityRawTB, capacityUsable };
+        }
+        
+        function calculate() {
+            const nodeResults = nodes.map(calculateNode);
+            const N = nodes.length;
+            
+            // 平均每節點
+            const totalCacheUsable = nodeResults.reduce((s, r) => s + r.cacheUsable, 0);
+            const totalCapacityUsable = nodeResults.reduce((s, r) => s + r.capacityUsable, 0);
+            const avgCacheUsable = totalCacheUsable / N;
+            const avgCapacityUsable = totalCapacityUsable / N;
+            
+            // 4.3.1 比例檢查：冗餘Cache (CacheUsable/2) / CapacityUsable >= 1/10
+            const ratioInvalidNodes = [];
+            // 4.3.2 單顆 Cache 警告
+            const singleCacheNodes = [];
+            
+            nodeResults.forEach((r, i) => {
+                const redundantCache = r.cacheUsable / 2;
+                if (r.capacityUsable > 0 && (redundantCache / r.capacityUsable) < 0.1) {
+                    ratioInvalidNodes.push({
+                        index: i + 1,
+                        redundantCache,
+                        capacity: r.capacityUsable,
+                        need: r.capacityUsable / 10
+                    });
+                }
+                if (nodes[i].cacheDisks.length === 1) {
+                    singleCacheNodes.push({ index: i + 1 });
+                }
+            });
+            
+            // 4.4.1 RF2 = 每個節點Capacity可用空間 * (節點數-1) / 2
+            const rf2Raw = N >= 2 ? avgCapacityUsable * (N - 1) / 2 : 0;
+            // 4.4.2 RF3 = 每個節點Capacity可用空間 * (節點數-1) / 3
+            const rf3Raw = N >= 3 ? avgCapacityUsable * (N - 1) / 3 : 0;
+            
+            // 4.5 / 4.6 保留策略
+            const storageEnabled = document.getElementById('storageReserveEnabled').checked;
+            const storagePct = parseFloat(document.getElementById('storageReservePct').value) || 0;
+            const snapshotEnabled = document.getElementById('snapshotReserveEnabled').checked;
+            const snapshotPct = parseFloat(document.getElementById('snapshotReservePct').value) || 0;
+            
+            const storageFactor = storageEnabled ? (1 - storagePct / 100) : 1;
+            const snapshotFactor = snapshotEnabled ? (1 - snapshotPct / 100) : 1;
+            const totalFactor = storageFactor * snapshotFactor;
+            
+            const rf2Final = rf2Raw * totalFactor;
+            const rf3Final = rf3Raw * totalFactor;
+            
+            // ===================== 更新 UI =====================
+            document.getElementById('avgCacheUsable').textContent = avgCacheUsable.toFixed(4) + ' TiB';
+            document.getElementById('avgCapacityUsable').textContent = avgCapacityUsable.toFixed(4) + ' TiB';
+            
+            const ratioEl = document.getElementById('globalRatio');
+            if (avgCapacityUsable > 0) {
+                const redundantAvg = avgCacheUsable / 2;
+                const ratio = redundantAvg / avgCapacityUsable;
+                const displayRatio = ratio > 0 ? `1 : ${(1 / ratio).toFixed(1)}` : '-';
+                ratioEl.textContent = displayRatio;
+                ratioEl.style.color = ratio >= 0.1 ? 'var(--success)' : 'var(--danger)';
+            } else {
+                ratioEl.textContent = '-';
+                ratioEl.style.color = '';
+            }
+            
+            document.getElementById('rf2Raw').textContent = rf2Raw > 0 
+                ? rf2Raw.toFixed(4) + ' TiB' 
+                : (N < 2 ? 'N/A (需≥2節點)' : '0.0000 TiB');
+            document.getElementById('rf3Raw').textContent = rf3Raw > 0 
+                ? rf3Raw.toFixed(4) + ' TiB' 
+                : (N < 3 ? 'N/A (需≥3節點)' : '0.0000 TiB');
+            
+            document.getElementById('rf2Final').textContent = rf2Final > 0 
+                ? rf2Final.toFixed(4) + ' TiB' 
+                : (N < 2 ? 'N/A' : '0.0000 TiB');
+            document.getElementById('rf3Final').textContent = rf3Final > 0 
+                ? rf3Final.toFixed(4) + ' TiB' 
+                : (N < 3 ? 'N/A' : '0.0000 TiB');
+            
+            const sPct = storageEnabled ? storagePct : 0;
+            const snPct = snapshotEnabled ? snapshotPct : 0;
+            document.getElementById('reserveFormulaNote').textContent = 
+                `計算：RF × (1 − ${sPct}%) × (1 − ${snPct}%) = RF × ${(totalFactor * 100).toFixed(0)}%`;
+            
+            document.getElementById('storageReserveDetail').textContent = 
+                storageEnabled ? `保留後可用：${(100 - storagePct)}%` : '未啟用';
+            document.getElementById('snapshotReserveDetail').textContent = 
+                snapshotEnabled ? `保留後可用：${(100 - snapshotPct)}%` : '未啟用';
+            
+            // ===================== 告警控制 =====================
+            const ratioAlert = document.getElementById('ratioAlert');
+            const redundancyAlert = document.getElementById('redundancyAlert');
+            const allOkAlert = document.getElementById('allOkAlert');
+            const ratioAlertDetail = document.getElementById('ratioAlertDetail');
+            const redundancyAlertDetail = document.getElementById('redundancyAlertDetail');
+            
+            let hasError = false;
+            let hasWarning = false;
+            
+            // 比例不足告警 (4.3.1)
+            if (ratioInvalidNodes.length > 0) {
+                let html = ratioInvalidNodes.map(n => 
+                    `Node ${n.index}：冗餘 Cache ${n.redundantCache.toFixed(4)} TiB，需要 ≥ ${n.need.toFixed(4)} TiB`
+                ).join('<br>');
+                ratioAlertDetail.innerHTML = html;
+                ratioAlert.classList.add('show');
+                hasError = true;
+            } else {
+                ratioAlert.classList.remove('show');
+            }
+            
+            // 單顆 Cache 告警 (4.3.2)
+            if (singleCacheNodes.length > 0) {
+                let html = singleCacheNodes.map(n => `Node ${n.index}`).join('、');
+                redundancyAlertDetail.innerHTML = `以下節點僅配置 1 顆 Cache Disk，系統 Cache 沒有冗餘：<br><strong>${html}</strong>`;
+                redundancyAlert.classList.add('show');
+                hasWarning = true;
+            } else {
+                redundancyAlert.classList.remove('show');
+            }
+            
+            // 全通過提示
+            if (!hasError && !hasWarning && avgCapacityUsable > 0) {
+                allOkAlert.classList.add('show');
+            } else {
+                allOkAlert.classList.remove('show');
+            }
+        }
+        
+        // ===================== 事件綁定 =====================
+        document.getElementById('nodeCount').addEventListener('change', function(e) {
+            const newCount = Math.max(1, Math.min(64, parseInt(e.target.value) || 1));
+            const current = nodes.length;
+            if (newCount > current) {
+                for (let i = current; i < newCount; i++) nodes.push(createDefaultNode());
+            } else if (newCount < current) {
+                nodes = nodes.slice(0, newCount);
+            }
+            renderAll();
+            calculate();
+        });
+        
+        ['storageReserveEnabled', 'storageReservePct', 'snapshotReserveEnabled', 'snapshotReservePct'].forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('change', calculate);
+            el.addEventListener('input', calculate);
+        });
+        
+        // ===================== 初始化 =====================
+        init();
+    </script>
+</body>
+</html>
